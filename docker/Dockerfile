@@ -7,7 +7,7 @@ COPY . .
 
 RUN go mod tidy
 RUN go mod vendor
-RUN go build -o /docker-gs-ping
+RUN go build -o /cmd/docker-gs-ping
 
 EXPOSE 80
 
