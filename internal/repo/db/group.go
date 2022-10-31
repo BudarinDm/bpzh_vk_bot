@@ -5,8 +5,6 @@ import (
 	"cloud.google.com/go/firestore"
 	"context"
 	"google.golang.org/api/iterator"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 func (r *Repo) GetGroupsByChatId(ctx context.Context, chatId int64) ([]domain.Group, error) {
@@ -38,41 +36,75 @@ func (r *Repo) GetGroupsByChatId(ctx context.Context, chatId int64) ([]domain.Gr
 }
 
 func (r *Repo) CreateGroup(ctx context.Context, g domain.Group) (*domain.Group, error) {
-	dsnap, err := r.FS.Collection("groups").Doc(g.Name).Get(ctx)
-	if err != nil {
-		if status.Code(err) == codes.NotFound {
-			_, err = r.FS.Collection("groups").Doc(g.Name).Set(ctx, g)
-			if err != nil {
-				return nil, err
-			}
-			return nil, nil
+	iter := r.FS.Collection("groups").Where("name", "==", g.Name).Where("chatid", "==", g.ChatId).Documents(ctx)
+
+	var groups []domain.Group
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
 		}
-	}
-	data := dsnap.Data()
-	var item domain.Group
-	ln, ok := data["name"]
-	if ok {
-		item.Name = ln.(string)
-	}
-	c, ok := data["color"]
-	if ok {
-		item.Color = c.(string)
+		if err != nil {
+			return nil, err
+		}
+
+		var gr domain.Group
+		err = doc.DataTo(&gr)
+		if err != nil {
+			return nil, err
+		}
+
+		groups = append(groups, gr)
 	}
 
-	return &item, nil
+	if len(groups) == 0 {
+		_, _, err := r.FS.Collection("groups").Add(ctx, g)
+		if err != nil {
+			return nil, err
+		}
+		return nil, nil
+	}
+
+	return &groups[0], nil
 }
 
-func (r *Repo) DeleteGroup(ctx context.Context, g string) error {
-	_, err := r.FS.Collection("groups").Doc(g).Delete(ctx)
-	if err != nil {
-		return err
+func (r *Repo) DeleteGroup(ctx context.Context, g string, chatId int64) error {
+	iter := r.FS.Collection("groups").Where("name", "==", g).Where("chatid", "==", chatId).Documents(ctx)
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return err
+		}
+
+		if err != nil {
+			return err
+		}
+		_, err = r.FS.Collection("groups").Doc(doc.Ref.ID).Delete(ctx)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
-func (r *Repo) UpdateGroup(ctx context.Context, field, nameGroup, value string) error {
-	if field == "color" {
-		_, err := r.FS.Collection("groups").Doc(nameGroup).Update(ctx, []firestore.Update{
+func (r *Repo) UpdateGroup(ctx context.Context, field, nameGroup, value string, chatId int64) error {
+	iter := r.FS.Collection("groups").Where("name", "==", nameGroup).Where("chatid", "==", chatId).Documents(ctx)
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return err
+		}
+
+		if err != nil {
+			return err
+		}
+		_, err = r.FS.Collection("groups").Doc(doc.Ref.ID).Update(ctx, []firestore.Update{
 			{
 				Path:  field,
 				Value: value,
@@ -81,24 +113,37 @@ func (r *Repo) UpdateGroup(ctx context.Context, field, nameGroup, value string) 
 		if err != nil {
 			return err
 		}
-		return nil
 	}
 	return nil
 }
 
-func (r *Repo) AddUserToGroup(ctx context.Context, userId int64, group string) error {
-	_, err := r.FS.Collection("groups").Doc(group).Set(ctx, map[string]interface{}{
-		"users": firestore.ArrayUnion(userId),
-	}, firestore.MergeAll)
-	if err != nil {
-		return err
+func (r *Repo) AddUserToGroup(ctx context.Context, userId int64, group string, chatId int64) error {
+	iter := r.FS.Collection("groups").Where("name", "==", group).Where("chatid", "==", chatId).Documents(ctx)
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return err
+		}
+
+		if err != nil {
+			return err
+		}
+		_, err = r.FS.Collection("groups").Doc(doc.Ref.ID).Set(ctx, map[string]interface{}{
+			"users": firestore.ArrayUnion(userId),
+		}, firestore.MergeAll)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }
 
-func (r *Repo) GetGroup(ctx context.Context, name string) (*domain.Group, error) {
+func (r *Repo) GetGroup(ctx context.Context, name string, chatId int64) (*domain.Group, error) {
 	var gr domain.Group
-	iter := r.FS.Collection("groups").Where("name", "==", name).Documents(ctx)
+	iter := r.FS.Collection("groups").Where("name", "==", name).Where("chatid", "==", chatId).Documents(ctx)
 	for {
 		doc, err := iter.Next()
 		if err == iterator.Done {
@@ -112,18 +157,28 @@ func (r *Repo) GetGroup(ctx context.Context, name string) (*domain.Group, error)
 		if err != nil {
 			return nil, err
 		}
-
 	}
 
 	return &gr, nil
 }
 
-func (r *Repo) DeleteUserToGroup(ctx context.Context, userId int64, group string) error {
-	_, err := r.FS.Collection("groups").Doc(group).Set(ctx, map[string]interface{}{
-		"users": firestore.ArrayRemove(userId),
-	}, firestore.MergeAll)
-	if err != nil {
-		return err
+func (r *Repo) DeleteUserToGroup(ctx context.Context, userId int64, group string, chatId int64) error {
+	iter := r.FS.Collection("groups").Where("name", "==", group).Where("chatid", "==", chatId).Documents(ctx)
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return err
+		}
+
+		_, err = r.FS.Collection("groups").Doc(doc.Ref.ID).Set(ctx, map[string]interface{}{
+			"users": firestore.ArrayRemove(userId),
+		}, firestore.MergeAll)
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

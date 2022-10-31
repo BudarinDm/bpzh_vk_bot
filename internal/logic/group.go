@@ -15,29 +15,29 @@ func (l *Logic) CreateGroup(ctx context.Context, g domain.Group) (*domain.Group,
 	return l.repo.CreateGroup(ctx, g)
 }
 
-func (l *Logic) DeleteGroup(ctx context.Context, g string) error {
-	return l.repo.DeleteGroup(ctx, g)
+func (l *Logic) DeleteGroup(ctx context.Context, g string, chatId int64) error {
+	return l.repo.DeleteGroup(ctx, g, chatId)
 }
-func (l *Logic) UpdateGroup(ctx context.Context, field, nameGroup, value string) error {
-	return l.repo.UpdateGroup(ctx, field, nameGroup, value)
-}
-
-func (l *Logic) AddUserToGroup(ctx context.Context, userId int64, group string) error {
-	return l.repo.AddUserToGroup(ctx, userId, group)
+func (l *Logic) UpdateGroup(ctx context.Context, field, nameGroup, value string, chatId int64) error {
+	return l.repo.UpdateGroup(ctx, field, nameGroup, value, chatId)
 }
 
-func (l *Logic) GetGroup(ctx context.Context, name string) (*domain.Group, error) {
-	return l.repo.GetGroup(ctx, name)
+func (l *Logic) AddUserToGroup(ctx context.Context, userId int64, group string, chatId int64) error {
+	return l.repo.AddUserToGroup(ctx, userId, group, chatId)
 }
 
-func (l *Logic) DeleteUserToGroup(ctx context.Context, userId int64, group string) error {
-	return l.repo.DeleteUserToGroup(ctx, userId, group)
+func (l *Logic) GetGroup(ctx context.Context, name string, chatId int64) (*domain.Group, error) {
+	return l.repo.GetGroup(ctx, name, chatId)
 }
 
-func (l *Logic) GetGroupForAll(ctx context.Context, name string) (string, error) {
+func (l *Logic) DeleteUserToGroup(ctx context.Context, userId int64, group string, chatId int64) error {
+	return l.repo.DeleteUserToGroup(ctx, userId, group, chatId)
+}
+
+func (l *Logic) GetGroupForAll(ctx context.Context, name string, chatId int64) (string, error) {
 	var resp string
 
-	group, err := l.repo.GetGroup(context.Background(), name)
+	group, err := l.repo.GetGroup(context.Background(), name, chatId)
 	if err != nil {
 		return "", err
 	}

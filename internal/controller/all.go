@@ -11,7 +11,7 @@ func (a *App) allHandler(obj events.MessageEventObject, group string) error {
 	b := params.NewMessagesSendBuilder()
 	e := params.NewMessagesSendMessageEventAnswerBuilder()
 
-	str, err := a.logic.GetGroupForAll(context.Background(), group)
+	str, err := a.logic.GetGroupForAll(context.Background(), group, int64(obj.PeerID))
 	if err != nil {
 		return err
 	}
