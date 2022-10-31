@@ -6,6 +6,7 @@ import (
 	"context"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"google.golang.org/api/option"
+	"os"
 )
 
 type Repo struct {
@@ -20,7 +21,9 @@ func NewRepo(FS *firestore.Client) *Repo {
 }
 
 func CreateFSConnections(cfg *config.DBConfig) (*firestore.Client, error) {
-	options := option.WithCredentialsFile(cfg.FSPath)
+	cfg.FSConf = os.Getenv("FS_CONF")
+
+	options := option.WithCredentialsFile(cfg.FSConf)
 	client, err := firestore.NewClient(context.Background(), "bpzh-info", options)
 	if err != nil {
 		return nil, err

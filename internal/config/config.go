@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/pkg/errors"
 	"os"
 )
 
@@ -18,7 +17,7 @@ type AppConfig struct {
 
 type DBConfig struct {
 	DBString string
-	FSPath   string
+	FSConf   string
 }
 
 func ReadConfig() (*Config, error) {
@@ -39,14 +38,9 @@ func ReadConfig() (*Config, error) {
 	}
 
 	config.App.BotToken = os.Getenv("BOT_TOKEN")
-	if config.App.BotToken == "" {
-		return nil, errors.New("Not specified BOT_TOKEN")
-	}
-
-	config.DB.FSPath = os.Getenv("FS_PATH")
-	if config.DB.FSPath == "" {
-		return nil, errors.New("Not specified FS_PATH")
-	}
+	//if config.App.BotToken == "" {
+	//	return nil, errors.New("Not specified BOT_TOKEN")
+	//}
 
 	//db parse
 
