@@ -1,6 +1,7 @@
 package config
 
 import (
+	"github.com/pkg/errors"
 	"os"
 )
 
@@ -38,9 +39,14 @@ func ReadConfig() (*Config, error) {
 	}
 
 	config.App.BotToken = os.Getenv("BOT_TOKEN")
-	//if config.App.BotToken == "" {
-	//	return nil, errors.New("Not specified BOT_TOKEN")
-	//}
+	if config.App.BotToken == "" {
+		return nil, errors.New("Not specified BOT_TOKEN")
+	}
+
+	config.DB.FSConf = os.Getenv("FS_CONF")
+	if config.DB.FSConf == "" {
+		return nil, errors.New("Not specified FS_CONF")
+	}
 
 	//db parse
 
