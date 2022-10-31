@@ -29,6 +29,9 @@ jobs:
         uses: docker/setup-buildx-action@v1
       -
         name: Build and push
+        env:
+          BOT_TOKEN: {{ secrets.BOT_TOKEN }}
+          FS_CONF: {{ secrets.FIREBASE_FILE }}
         uses: docker/build-push-action@v2
         with:
           context: ./
