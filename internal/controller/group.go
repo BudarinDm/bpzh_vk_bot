@@ -14,7 +14,7 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 	}
 
 	if splitMsgs[1] == "create" {
-		if len(splitMsgs) < 4 {
+		if len(splitMsgs) < 5 {
 			return errors.New("Для подробной информации по работе с /group\nВведите /group info")
 		}
 		if splitMsgs[3] != ColorBlue && splitMsgs[3] != ColorWhite && splitMsgs[3] != ColorRed && splitMsgs[3] != ColorGreen {
