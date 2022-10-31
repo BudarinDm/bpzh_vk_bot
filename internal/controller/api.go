@@ -26,6 +26,31 @@ func NewApp(config *config.Config, logic *logic.Logic, longPoll *longpoll.LongPo
 }
 
 func (a *App) StartServe() {
+	//members, err := a.vk.MessagesGetConversationMembers(api.Params{"peer_id": 2000000002})
+	//if err != nil {
+	//	log.Error().Err(err)
+	//}
+	//for _, m := range members.Items {
+	//	fmt.Println(m.MemberID, m.IsAdmin, m.IsOwner)
+	//}
+	//,13213283,51899876,32329135
+	//users, err := a.vk.UsersGet(api.Params{"user_ids": "144568579"})
+	//if err != nil {
+	//	log.Error().Err(err)
+	//}
+	//for _, u := range users {
+	//	fmt.Println(u.ID, u.LastName, u.FirstName)
+	//	user := domain.User{
+	//		FirstName: u.FirstName,
+	//		LastName:  u.LastName,
+	//		TgId:      "",
+	//		VkId:      int64(u.ID),
+	//	}
+	//	err = a.logic.CreateUser(context.Background(), user)
+	//	if err != nil {
+	//		fmt.Println(err)
+	//	}
+	//}
 
 	a.handler()
 	// Run Bots Long Poll

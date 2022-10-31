@@ -41,10 +41,7 @@ func (r *Repo) CreateGroup(ctx context.Context, g domain.Group) (*domain.Group, 
 	dsnap, err := r.FS.Collection("groups").Doc(g.Name).Get(ctx)
 	if err != nil {
 		if status.Code(err) == codes.NotFound {
-			_, err = r.FS.Collection("groups").Doc(g.Name).Set(ctx, map[string]interface{}{
-				"name":  g.Name,
-				"color": g.Color,
-			})
+			_, err = r.FS.Collection("groups").Doc(g.Name).Set(ctx, g)
 			if err != nil {
 				return nil, err
 			}
@@ -87,4 +84,36 @@ func (r *Repo) UpdateGroup(ctx context.Context, field, nameGroup, value string) 
 		return nil
 	}
 	return nil
+}
+
+func (r *Repo) AddUserToGroup(ctx context.Context, userId int64, group string) error {
+	_, err := r.FS.Collection("groups").Doc(group).Set(ctx, map[string]interface{}{
+		"users": firestore.ArrayUnion(userId),
+	}, firestore.MergeAll)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (r *Repo) GetGroup(ctx context.Context, name string) (*domain.Group, error) {
+	var gr domain.Group
+	iter := r.FS.Collection("groups").Where(name, "==", name).Documents(ctx)
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		err = doc.DataTo(&gr)
+		if err != nil {
+			return nil, err
+		}
+
+	}
+
+	return &gr, nil
 }

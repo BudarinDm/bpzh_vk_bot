@@ -8,3 +8,9 @@ const (
 )
 
 var AccessChatIds = []int64{2000000002, 2000000001}
+
+const (
+	RoleAdmin      = "admin"
+	RoleModerator  = "moderator"
+	RoleNickolauyk = "Николаюк"
+)

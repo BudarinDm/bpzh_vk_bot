@@ -24,15 +24,13 @@ func (a *App) handler() {
 			}
 		}
 
-		if a.accessMethodGroupChecker(obj.PeerID) {
-			if e.Command == "all-menu" {
-				err = a.allMenuHandler(obj)
+		if e.Command == "all-menu" {
+			err = a.allMenuHandler(obj)
+			if err != nil {
+				log.Error().Err(err).Msg("all-menu")
+				err = a.sendMsgEventBuilder(&obj, err.Error())
 				if err != nil {
-					log.Error().Err(err).Msg("all-menu")
-					err = a.sendMsgEventBuilder(&obj, err.Error())
-					if err != nil {
-						return
-					}
+					return
 				}
 			}
 		}
@@ -44,27 +42,42 @@ func (a *App) handler() {
 		msg := obj.Message.Text
 		splitMsgs := strings.Split(msg, " ")
 
-		if msg == "/settings" && obj.Message.PeerID == 144568579 {
-			fmt.Println("/settings")
+		if a.accessAdminChecker(obj.Message.FromID, obj.Message.PeerID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
+			if msg == "/settings" {
+				fmt.Println("/settings")
+			}
 		}
 
-		if splitMsgs[0] == "/group" {
-			err := a.groupRouter(splitMsgs, obj)
-			if err != nil {
-				log.Error().Err(err).Msg("/group")
-				err = a.sendMsgBuilder(&obj, err.Error())
+		if a.accessAdminChecker(obj.Message.FromID, obj.Message.PeerID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
+			if splitMsgs[0] == "/group" {
+				err := a.groupRouter(splitMsgs, obj)
 				if err != nil {
-					return
+					log.Error().Err(err).Msg("/group")
+					err = a.sendMsgBuilder(&obj, err.Error())
+					if err != nil {
+						return
+					}
 				}
 			}
 		}
 
-		if a.accessMethodGroupChecker(obj.Message.PeerID) {
-			if msg == "/bot" {
-				err := a.botHandler(obj)
+		if a.accessAdminChecker(obj.Message.FromID, obj.Message.PeerID, []string{RoleAdmin}) {
+			if splitMsgs[0] == "/user" {
+				err := a.userRouter(splitMsgs, obj)
 				if err != nil {
-					log.Error().Err(err)
+					log.Error().Err(err).Msg("/user")
+					err = a.sendMsgBuilder(&obj, err.Error())
+					if err != nil {
+						return
+					}
 				}
+			}
+		}
+
+		if msg == "/bot" {
+			err := a.botHandler(obj)
+			if err != nil {
+				log.Error().Err(err)
 			}
 		}
 	})

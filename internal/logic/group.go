@@ -19,3 +19,11 @@ func (l *Logic) DeleteGroup(ctx context.Context, g string) error {
 func (l *Logic) UpdateGroup(ctx context.Context, field, nameGroup, value string) error {
 	return l.repo.UpdateGroup(ctx, field, nameGroup, value)
 }
+
+func (l *Logic) AddUserToGroup(ctx context.Context, userId int64, group string) error {
+	return l.repo.AddUserToGroup(ctx, userId, group)
+}
+
+func (l *Logic) GetGroup(ctx context.Context, name string) (*domain.Group, error) {
+	return l.repo.GetGroup(ctx, name)
+}

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/SevereCloud/vksdk/v2/events"
 	"github.com/pkg/errors"
+	"strconv"
 )
 
 func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error {
@@ -17,13 +18,19 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 		if len(splitMsgs) < 5 {
 			return errors.New("Для подробной информации по работе с /group\nВведите /group info")
 		}
-		if splitMsgs[3] != ColorBlue && splitMsgs[3] != ColorWhite && splitMsgs[3] != ColorRed && splitMsgs[3] != ColorGreen {
+		if splitMsgs[4] != ColorBlue && splitMsgs[4] != ColorWhite && splitMsgs[4] != ColorRed && splitMsgs[4] != ColorGreen {
 			return errors.New("Выбран не корректный цвет. Для подробной информации по работе с /group\nВведите /group info")
 		}
+
+		id, err := strconv.ParseInt(splitMsgs[2], 10, 64)
+		if err != nil {
+			return err
+		}
+
 		g := domain.Group{
-			Name:   splitMsgs[2],
-			Color:  splitMsgs[3],
-			ChatId: 0,
+			Name:   splitMsgs[3],
+			Color:  splitMsgs[4],
+			ChatId: id,
 		}
 
 		item, err := a.logic.CreateGroup(context.Background(), g)
@@ -32,7 +39,7 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 		}
 		var msg string
 		if item == nil {
-			msg = fmt.Sprintf(`Создана группа -"%s"", цвет группы -"%s"`, splitMsgs[2], splitMsgs[3])
+			msg = fmt.Sprintf(`Создана группа -"%s"", цвет группы -"%s"`, splitMsgs[3], splitMsgs[4])
 		} else {
 			msg = fmt.Sprintf(`Такая группа уже существует- "%s", цвет группы- "%s"`, item.Name, item.Color)
 		}
@@ -81,10 +88,29 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 		return nil
 	}
 	if splitMsgs[1] == "add" {
-		if len(splitMsgs) < 3 {
+		if len(splitMsgs) < 4 {
 			return errors.New("Для подробной информации по работе с /group\nВведите /group info")
 		}
 
+		_, err := a.logic.GetGroup(context.Background(), splitMsgs[3])
+		if err != nil {
+			return errors.New(fmt.Sprintf(`Группа "%s" не найдена`, splitMsgs[3]))
+		}
+
+		id, err := strconv.ParseInt(splitMsgs[2], 10, 64)
+		if err != nil {
+			return err
+		}
+
+		err = a.logic.AddUserToGroup(context.Background(), id, splitMsgs[3])
+		if err != nil {
+			return err
+		}
+		err = a.sendMsgBuilder(&obj, fmt.Sprintf("Пользователь %d добавлен в группу %s", id, splitMsgs[3]))
+		if err != nil {
+			return err
+		}
+		return nil
 	}
 	if splitMsgs[1] == "list" {
 		listMsg :=
@@ -97,9 +123,10 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 	}
 	if splitMsgs[1] == "info" {
 		infoMsg :=
-			"Доступные команды для group:\ncreate- /group create [айди группы или название из списка /group list] [название группы] [цвет группы из доступных],\n" +
-				"update- /group update [название группы] [color] [новое значение],\n" +
-				"delete- /group delete [название группы].\n" +
+			"Доступные команды для group:\nСоздать группу-  /group create [айди группы или название из списка /group list] [название группы] [цвет группы из доступных],\n" +
+				"Обновить группу-  /group update [название группы] [color] [новое значение],\n" +
+				"Удалить группу-  /group delete [название группы].\n" +
+				"Добавить в группу-  /group add [id юзера] [название группы]\n" +
 				"Доступные цвета: primary — синяя, secondary — белая, negative — красный, positive — зеленый"
 		err := a.sendMsgBuilder(&obj, infoMsg)
 		if err != nil {

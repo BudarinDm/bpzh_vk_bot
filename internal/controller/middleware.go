@@ -2,25 +2,20 @@ package controller
 
 import "context"
 
-func (a *App) accessMethodGroupChecker(objId int) bool {
-	for _, cid := range AccessChatIds {
-		if cid == int64(objId) {
-			return true
-		}
-	}
-	return false
-}
-
-func (a *App) accessMethodAdminChecker(userId int, adminGroupName string) bool {
-	users, err := a.logic.GetAdminUsers(context.Background(), adminGroupName)
+func (a *App) accessAdminChecker(userId, chatId int, roles []string) bool {
+	user, err := a.logic.GetAdminUser(context.Background(), userId)
 	if err != nil {
 		return false
 	}
 
-	for _, u := range users {
-		if u.VkId == int64(userId) {
-			return true
+	for _, v := range roles {
+		rls, _ := user.Roles[v]
+		for _, r := range rls {
+			if r == int64(chatId) {
+				return true
+			}
 		}
 	}
+
 	return false
 }

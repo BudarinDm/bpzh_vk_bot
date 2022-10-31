@@ -1,8 +1,8 @@
 package domain
 
 type Group struct {
-	Name   string
-	Color  string
-	ChatId int64
-	Users  []User
+	Name   string `firestore:"name"`
+	Color  string `firestore:"color"`
+	ChatId int64  `firestore:"chatid"`
+	Users  []User `firestore:"users"`
 }

@@ -1,9 +1,9 @@
 package domain
 
 type User struct {
-	Id        int64
-	FirstName string
-	LastName  string
-	TgId      string
-	VkId      int64
+	FirstName string             `firestore:"firstname"`
+	LastName  string             `firestore:"lastname"`
+	TgId      string             `firestore:"tgid"`
+	VkId      int64              `firestore:"vkid"`
+	Roles     map[string][]int64 `firestore:"roles"`
 }

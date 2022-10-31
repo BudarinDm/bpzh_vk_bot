@@ -35,7 +35,7 @@ func main() {
 	}
 
 	repo := db.NewRepo(fs)                     // model работает с БД и прочими источниками данных
-	lgc := logic.NewLogic(cfg, repo)           // logic знает, что делать с model
+	lgc := logic.NewLogic(cfg, repo, vk)       // logic знает, что делать с model
 	app := controller.NewApp(cfg, lgc, lp, vk) // api использует logic для обработки запросов
 
 	app.StartServe()
