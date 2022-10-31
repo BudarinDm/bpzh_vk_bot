@@ -117,3 +117,13 @@ func (r *Repo) GetGroup(ctx context.Context, name string) (*domain.Group, error)
 
 	return &gr, nil
 }
+
+func (r *Repo) DeleteUserToGroup(ctx context.Context, userId int64, group string) error {
+	_, err := r.FS.Collection("groups").Doc(group).Set(ctx, map[string]interface{}{
+		"users": firestore.ArrayRemove(userId),
+	}, firestore.MergeAll)
+	if err != nil {
+		return err
+	}
+	return nil
+}

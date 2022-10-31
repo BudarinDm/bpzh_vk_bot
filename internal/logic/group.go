@@ -27,3 +27,7 @@ func (l *Logic) AddUserToGroup(ctx context.Context, userId int64, group string) 
 func (l *Logic) GetGroup(ctx context.Context, name string) (*domain.Group, error) {
 	return l.repo.GetGroup(ctx, name)
 }
+
+func (l *Logic) DeleteUserToGroup(ctx context.Context, userId int64, group string) error {
+	return l.repo.DeleteUserToGroup(ctx, userId, group)
+}

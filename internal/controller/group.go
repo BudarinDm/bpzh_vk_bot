@@ -112,6 +112,31 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 		}
 		return nil
 	}
+	if splitMsgs[1] == "kick" {
+		if len(splitMsgs) < 4 {
+			return errors.New("Для подробной информации по работе с /group\nВведите /group info")
+		}
+
+		_, err := a.logic.GetGroup(context.Background(), splitMsgs[3])
+		if err != nil {
+			return errors.New(fmt.Sprintf(`Группа "%s" не найдена`, splitMsgs[3]))
+		}
+
+		id, err := strconv.ParseInt(splitMsgs[2], 10, 64)
+		if err != nil {
+			return err
+		}
+
+		err = a.logic.DeleteUserToGroup(context.Background(), id, splitMsgs[3])
+		if err != nil {
+			return err
+		}
+		err = a.sendMsgBuilder(&obj, fmt.Sprintf("Пользователь %d удален из группы %s", id, splitMsgs[3]))
+		if err != nil {
+			return err
+		}
+		return nil
+	}
 	if splitMsgs[1] == "list" {
 		listMsg :=
 			"Доступные беседы:\nname: Тестовая беседа, id: 2000000002\nname: Поддержка Бота, id: 2000000001"
@@ -127,6 +152,7 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 				"Обновить группу-  /group update [название группы] [color] [новое значение],\n" +
 				"Удалить группу-  /group delete [название группы].\n" +
 				"Добавить в группу-  /group add [id юзера] [название группы]\n" +
+				"Удалить из группы-  /group kick [id юзера] [название группы]\n" +
 				"Доступные цвета: primary — синяя, secondary — белая, negative — красный, positive — зеленый"
 		err := a.sendMsgBuilder(&obj, infoMsg)
 		if err != nil {
