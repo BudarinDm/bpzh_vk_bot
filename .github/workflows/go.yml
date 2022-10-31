@@ -30,8 +30,8 @@ jobs:
       -
         name: Build and push
         env:
-          BOT_TOKEN: {{ secrets.BOT_TOKEN }}
-          FS_CONF: {{ secrets.FIREBASE_FILE }}
+          BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
+          FS_CONF: ${{ secrets.FIREBASE_FILE }}
         uses: docker/build-push-action@v2
         with:
           context: ./
