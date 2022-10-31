@@ -5,5 +5,6 @@ type User struct {
 	LastName  string             `firestore:"lastname"`
 	TgId      string             `firestore:"tgid"`
 	VkId      int64              `firestore:"vkid"`
+	VkDomain  string             `firestore:"vkdomain"`
 	Roles     map[string][]int64 `firestore:"roles"`
 }

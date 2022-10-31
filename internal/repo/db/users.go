@@ -125,3 +125,25 @@ func (r *Repo) CreateUser(ctx context.Context, u domain.User) error {
 
 	return nil
 }
+
+func (r *Repo) GetUserVKDomain(ctx context.Context, vkid int64) (*domain.User, error) {
+	var user domain.User
+	iter := r.FS.Collection("users").Where("vkid", "==", vkid).Documents(ctx)
+	for {
+		doc, err := iter.Next()
+		if err == iterator.Done {
+			break
+		}
+		if err != nil {
+			return nil, err
+		}
+
+		err = doc.DataTo(&user)
+		if err != nil {
+			return nil, err
+		}
+
+	}
+
+	return &user, nil
+}

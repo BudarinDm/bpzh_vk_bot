@@ -34,6 +34,17 @@ func (a *App) handler() {
 				}
 			}
 		}
+
+		if e.Command == "all" {
+			err = a.allHandler(obj, e.Arg)
+			if err != nil {
+				log.Error().Err(err).Msg("all")
+				err = a.sendMsgEventBuilder(&obj, err.Error())
+				if err != nil {
+					return
+				}
+			}
+		}
 	})
 
 	a.lp.MessageNew(func(_ context.Context, obj events.MessageNewObject) {
@@ -57,6 +68,15 @@ func (a *App) handler() {
 					if err != nil {
 						return
 					}
+				}
+			}
+		}
+
+		if a.accessAdminChecker(obj.Message.FromID, obj.Message.PeerID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
+			if splitMsgs[0] == "/help" {
+				err := a.sendMsgBuilder(&obj, "/group info для управления группами\n/user info для управления юзерами , спойлер - для админа")
+				if err != nil {
+					return
 				}
 			}
 		}

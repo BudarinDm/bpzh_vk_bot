@@ -9,9 +9,9 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (r *Repo) GetGroups(ctx context.Context) ([]domain.Group, error) {
+func (r *Repo) GetGroupsByChatId(ctx context.Context, chatId int64) ([]domain.Group, error) {
 	var items []domain.Group
-	iter := r.FS.Collection("groups").Documents(ctx)
+	iter := r.FS.Collection("groups").Where("chatid", "==", chatId).Documents(ctx)
 	for {
 		doc, err := iter.Next()
 		if err == iterator.Done {
@@ -98,7 +98,7 @@ func (r *Repo) AddUserToGroup(ctx context.Context, userId int64, group string) e
 
 func (r *Repo) GetGroup(ctx context.Context, name string) (*domain.Group, error) {
 	var gr domain.Group
-	iter := r.FS.Collection("groups").Where(name, "==", name).Documents(ctx)
+	iter := r.FS.Collection("groups").Where("name", "==", name).Documents(ctx)
 	for {
 		doc, err := iter.Next()
 		if err == iterator.Done {

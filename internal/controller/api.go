@@ -34,7 +34,7 @@ func (a *App) StartServe() {
 	//	fmt.Println(m.MemberID, m.IsAdmin, m.IsOwner)
 	//}
 	//,13213283,51899876,32329135
-	//users, err := a.vk.UsersGet(api.Params{"user_ids": "144568579"})
+	//users, err := a.vk.UsersGet(api.Params{"user_ids": "13213283,51899876,32329135", "fields": "domain"})
 	//if err != nil {
 	//	log.Error().Err(err)
 	//}
@@ -45,6 +45,7 @@ func (a *App) StartServe() {
 	//		LastName:  u.LastName,
 	//		TgId:      "",
 	//		VkId:      int64(u.ID),
+	//		VkDomain:  u.Domain,
 	//	}
 	//	err = a.logic.CreateUser(context.Background(), user)
 	//	if err != nil {

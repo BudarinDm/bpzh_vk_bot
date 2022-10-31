@@ -15,22 +15,17 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 	}
 
 	if splitMsgs[1] == "create" {
-		if len(splitMsgs) < 5 {
+		if len(splitMsgs) < 4 {
 			return errors.New("Для подробной информации по работе с /group\nВведите /group info")
 		}
-		if splitMsgs[4] != ColorBlue && splitMsgs[4] != ColorWhite && splitMsgs[4] != ColorRed && splitMsgs[4] != ColorGreen {
+		if splitMsgs[3] != ColorBlue && splitMsgs[3] != ColorWhite && splitMsgs[3] != ColorRed && splitMsgs[3] != ColorGreen {
 			return errors.New("Выбран не корректный цвет. Для подробной информации по работе с /group\nВведите /group info")
 		}
 
-		id, err := strconv.ParseInt(splitMsgs[2], 10, 64)
-		if err != nil {
-			return err
-		}
-
 		g := domain.Group{
-			Name:   splitMsgs[3],
-			Color:  splitMsgs[4],
-			ChatId: id,
+			Name:   splitMsgs[2],
+			Color:  splitMsgs[3],
+			ChatId: int64(obj.Message.PeerID),
 		}
 
 		item, err := a.logic.CreateGroup(context.Background(), g)
@@ -39,7 +34,7 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 		}
 		var msg string
 		if item == nil {
-			msg = fmt.Sprintf(`Создана группа -"%s"", цвет группы -"%s"`, splitMsgs[3], splitMsgs[4])
+			msg = fmt.Sprintf(`Создана группа -"%s"", цвет группы -"%s"`, splitMsgs[2], splitMsgs[3])
 		} else {
 			msg = fmt.Sprintf(`Такая группа уже существует- "%s", цвет группы- "%s"`, item.Name, item.Color)
 		}
@@ -137,18 +132,9 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 		}
 		return nil
 	}
-	if splitMsgs[1] == "list" {
-		listMsg :=
-			"Доступные беседы:\nname: Тестовая беседа, id: 2000000002\nname: Поддержка Бота, id: 2000000001"
-		err := a.sendMsgBuilder(&obj, listMsg)
-		if err != nil {
-			return err
-		}
-		return nil
-	}
 	if splitMsgs[1] == "info" {
 		infoMsg :=
-			"Доступные команды для group:\nСоздать группу-  /group create [айди группы или название из списка /group list] [название группы] [цвет группы из доступных],\n" +
+			"Доступные команды для group:\nСоздать группу-  /group create [название группы] [цвет группы из доступных],\n" +
 				"Обновить группу-  /group update [название группы] [color] [новое значение],\n" +
 				"Удалить группу-  /group delete [название группы].\n" +
 				"Добавить в группу-  /group add [id юзера] [название группы]\n" +

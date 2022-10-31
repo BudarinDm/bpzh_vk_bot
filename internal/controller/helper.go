@@ -49,7 +49,7 @@ func (a *App) allMenuHandler(obj events.MessageEventObject) error {
 	var buttons [][]domain.Button
 	count := 0
 
-	groups, err := a.logic.GetGroups(context.Background())
+	groups, err := a.logic.GetGroupsByChatId(context.Background(), int64(obj.PeerID))
 	if err != nil {
 		return err
 	}
@@ -62,7 +62,7 @@ func (a *App) allMenuHandler(obj events.MessageEventObject) error {
 				domain.Button{
 					Action: domain.Action{
 						Type:    "callback",
-						Payload: fmt.Sprintf(`{"command": "%s"}`, g.Name),
+						Payload: fmt.Sprintf(`{"command": "all", "arg": "%s"}`, g.Name),
 						Label:   g.Name,
 					},
 					Color: g.Color,
@@ -86,7 +86,7 @@ func (a *App) allMenuHandler(obj events.MessageEventObject) error {
 		by, _ := json.Marshal(keyboards)
 		b.Keyboard(string(by))
 
-		b.Message("Выберете группу")
+		b.Message("Выберите группу")
 		b.RandomID(0)
 		b.PeerID(obj.PeerID)
 
@@ -98,7 +98,7 @@ func (a *App) allMenuHandler(obj events.MessageEventObject) error {
 		return nil
 	}
 
-	b.Message("Группы не созданы, для добавления групп пользователей напишите в личные сообщения бота")
+	b.Message("Группы не созданы, для добавления групп пользователей воспользуйтесь /group info")
 	b.RandomID(0)
 	b.PeerID(obj.PeerID)
 
@@ -107,42 +107,6 @@ func (a *App) allMenuHandler(obj events.MessageEventObject) error {
 	if err != nil {
 		return err
 	}
-	return nil
-}
-
-func (a *App) allHandler(obj events.MessageEventObject, query string) error {
-	b := params.NewMessagesSendBuilder()
-	e := params.NewMessagesSendMessageEventAnswerBuilder()
-	var msg string
-
-	if query == "all-menu" {
-		msg = fmt.Sprintf("")
-	}
-	if query == "moscow" {
-		msg = fmt.Sprintf("da")
-	}
-
-	b.Message(msg)
-	b.RandomID(0)
-	b.PeerID(obj.PeerID)
-
-	e.EventID(obj.EventID)
-	e.PeerID(obj.PeerID)
-	e.UserID(obj.UserID)
-	e.EventData(`{
-    "type": "show_snackbar",
-    "text": "Вы тегнули весь Воронеж"
-  }`)
-
-	_, err := a.vk.MessagesSend(b.Params)
-	if err != nil {
-		return err
-	}
-	_, err = a.vk.MessagesSendMessageEventAnswer(e.Params)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
