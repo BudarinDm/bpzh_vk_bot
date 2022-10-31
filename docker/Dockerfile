@@ -7,8 +7,8 @@ COPY . .
 
 RUN go mod tidy
 RUN go mod vendor
-RUN go build -o /cmd/docker-gs-ping
+RUN go build -o /vkbot
 
 EXPOSE 80
 
-CMD [ "/docker-gs-ping" ]
+CMD [ "/vkbot" ]
