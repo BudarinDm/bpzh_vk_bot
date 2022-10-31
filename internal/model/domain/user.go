@@ -5,5 +5,5 @@ type User struct {
 	FirstName string
 	LastName  string
 	TgId      string
-	VkId      string
+	VkId      int64
 }
