@@ -24,13 +24,15 @@ func (a *App) handler() {
 			}
 		}
 
-		if e.Command == "all-menu" {
-			err = a.allMenuHandler(obj)
-			if err != nil {
-				log.Error().Err(err).Msg("all-menu")
-				err = a.sendMsgEventBuilder(&obj, err.Error())
+		if a.accessMethodGroupChecker(obj.PeerID) {
+			if e.Command == "all-menu" {
+				err = a.allMenuHandler(obj)
 				if err != nil {
-					return
+					log.Error().Err(err).Msg("all-menu")
+					err = a.sendMsgEventBuilder(&obj, err.Error())
+					if err != nil {
+						return
+					}
 				}
 			}
 		}
@@ -57,10 +59,12 @@ func (a *App) handler() {
 			}
 		}
 
-		if msg == "/bot" {
-			err := a.botHandler(obj)
-			if err != nil {
-				log.Error().Err(err)
+		if a.accessMethodGroupChecker(obj.Message.PeerID) {
+			if msg == "/bot" {
+				err := a.botHandler(obj)
+				if err != nil {
+					log.Error().Err(err)
+				}
 			}
 		}
 	})

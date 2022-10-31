@@ -2,23 +2,23 @@ package controller
 
 import "context"
 
-func (a *App) accessMethodGroupChecker(objId int64) bool {
+func (a *App) accessMethodGroupChecker(objId int) bool {
 	for _, cid := range AccessChatIds {
-		if cid == objId {
+		if cid == int64(objId) {
 			return true
 		}
 	}
 	return false
 }
 
-func (a *App) accessMethodAdminChecker(userId int64, adminGroupName string) bool {
+func (a *App) accessMethodAdminChecker(userId int, adminGroupName string) bool {
 	users, err := a.logic.GetAdminUsers(context.Background(), adminGroupName)
 	if err != nil {
 		return false
 	}
 
 	for _, u := range users {
-		if u.VkId == userId {
+		if u.VkId == int64(userId) {
 			return true
 		}
 	}
