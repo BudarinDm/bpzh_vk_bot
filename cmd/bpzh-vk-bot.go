@@ -16,12 +16,12 @@ func main() {
 		log.Fatal().Err(err).Msg("Failed read Config")
 	}
 
-	vk := api.NewVK(cfg.App.BotToken)
-
 	fs, err := db.CreateFSConnections(&cfg.DB)
 	if err != nil {
 		log.Error().Err(err)
 	}
+
+	vk := api.NewVK(cfg.App.BotToken)
 
 	group, err := vk.GroupsGetByID(nil)
 	if err != nil {
