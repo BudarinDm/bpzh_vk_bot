@@ -56,7 +56,7 @@ func (a *App) handler() {
 		if a.accessAdminChecker(obj.Message.FromID, obj.Message.PeerID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
 			if msg == "/settings" {
 				fmt.Println("/settings")
-				err := a.sendMsgBuilder(&obj, "/settings тест ci/cd 2")
+				err := a.sendMsgBuilder(&obj, "/settings тест ci/cd 3")
 				if err != nil {
 					return
 				}
