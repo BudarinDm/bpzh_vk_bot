@@ -25,7 +25,7 @@ func CreateFSConnections(cfg *config.DBConfig) (*firestore.Client, error) {
 	//	fmt.Println(err)
 	//}
 
-	options := option.WithCredentialsFile("./bot_fs.json")
+	options := option.WithCredentialsFile("bot_fs.json")
 	client, err := firestore.NewClient(context.Background(), "bpzh-info", options)
 	if err != nil {
 		return nil, err
