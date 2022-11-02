@@ -64,4 +64,5 @@ func (a *App) StartServe() {
 type MessageEventResponse struct {
 	Command string `json:"command"`
 	Arg     string `json:"arg"`
+	UserID  int    `json:"user_id"`
 }

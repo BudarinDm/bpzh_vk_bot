@@ -27,14 +27,6 @@ func (a *App) botHandler(obj events.MessageNewObject) error {
 		},
 	}
 
-	md := params.NewMessagesDeleteBuilder()
-	md.PeerID(obj.Message.PeerID)
-	md.MessageIDs([]int{obj.Message.ID})
-	_, err := a.vk.MessagesDelete(md.Params)
-	if err != nil {
-		return err
-	}
-
 	by, _ := json.Marshal(keyboards)
 	b.Keyboard(string(by))
 
@@ -42,7 +34,15 @@ func (a *App) botHandler(obj events.MessageNewObject) error {
 	b.RandomID(0)
 	b.PeerID(obj.Message.PeerID)
 
-	_, err = a.vk.MessagesSend(b.Params)
+	_, err := a.vk.MessagesSend(b.Params)
+	if err != nil {
+		return err
+	}
+
+	md := params.NewMessagesDeleteBuilder()
+	md.PeerID(obj.Message.PeerID)
+	md.MessageIDs([]int{obj.Message.ID})
+	_, err = a.vk.MessagesDelete(md.Params)
 	if err != nil {
 		return err
 	}

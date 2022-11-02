@@ -66,6 +66,10 @@ func (a *App) handler() {
 			err := a.botHandler(obj)
 			if err != nil {
 				log.Error().Err(err)
+				err = a.sendMsgBuilder(&obj, err.Error())
+				if err != nil {
+					return
+				}
 			}
 		}
 	})
@@ -85,7 +89,7 @@ func (a *App) handler() {
 
 		//obj.EventID
 
-		if e.Command == "all-menu" {
+		if e.Command == "all-menu" && e.UserID == obj.UserID {
 			err = a.allMenuHandler(obj)
 			if err != nil {
 				log.Error().Err(err).Msg("all-menu")
