@@ -11,42 +11,6 @@ import (
 )
 
 func (a *App) handler() {
-	a.lp.MessageEvent(func(_ context.Context, obj events.MessageEventObject) {
-		log.Printf("%d: %s, %s, %d, %d", obj.UserID, obj.EventID, obj.Payload, obj.PeerID, obj.ConversationMessageID)
-
-		var e MessageEventResponse
-		err := json.Unmarshal(obj.Payload, &e)
-		if err != nil {
-			log.Error().Err(err).Msg("handler Unmarshal")
-			err = a.sendMsgEventBuilder(&obj, err.Error())
-			if err != nil {
-				return
-			}
-		}
-
-		if e.Command == "all-menu" {
-			err = a.allMenuHandler(obj)
-			if err != nil {
-				log.Error().Err(err).Msg("all-menu")
-				err = a.sendMsgEventBuilder(&obj, err.Error())
-				if err != nil {
-					return
-				}
-			}
-		}
-
-		if e.Command == "all" {
-			err = a.allHandler(obj, e.Arg)
-			if err != nil {
-				log.Error().Err(err).Msg("all")
-				err = a.sendMsgEventBuilder(&obj, err.Error())
-				if err != nil {
-					return
-				}
-			}
-		}
-	})
-
 	a.lp.MessageNew(func(_ context.Context, obj events.MessageNewObject) {
 		log.Printf("%d: %s. authorId: %d", obj.Message.PeerID, obj.Message.Text, obj.Message.FromID)
 
@@ -56,7 +20,7 @@ func (a *App) handler() {
 		if a.accessAdminChecker(obj.Message.FromID, obj.Message.PeerID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
 			if msg == "/settings" {
 				fmt.Println("/settings")
-				err := a.sendMsgBuilder(&obj, "/settings тест ci/cd че работает чтоли?")
+				err := a.sendMsgBuilder(&obj, "/settings")
 				if err != nil {
 					return
 				}
@@ -102,6 +66,44 @@ func (a *App) handler() {
 			err := a.botHandler(obj)
 			if err != nil {
 				log.Error().Err(err)
+			}
+		}
+	})
+
+	a.lp.MessageEvent(func(_ context.Context, obj events.MessageEventObject) {
+		log.Printf("%d: %s, %s, %d, %d", obj.UserID, obj.EventID, obj.Payload, obj.PeerID, obj.ConversationMessageID)
+
+		var e MessageEventResponse
+		err := json.Unmarshal(obj.Payload, &e)
+		if err != nil {
+			log.Error().Err(err).Msg("handler Unmarshal")
+			err = a.sendMsgEventBuilder(&obj, err.Error())
+			if err != nil {
+				return
+			}
+		}
+
+		//obj.EventID
+
+		if e.Command == "all-menu" {
+			err = a.allMenuHandler(obj)
+			if err != nil {
+				log.Error().Err(err).Msg("all-menu")
+				err = a.sendMsgEventBuilder(&obj, err.Error())
+				if err != nil {
+					return
+				}
+			}
+		}
+
+		if e.Command == "all" {
+			err = a.allHandler(obj, e.Arg)
+			if err != nil {
+				log.Error().Err(err).Msg("all")
+				err = a.sendMsgEventBuilder(&obj, err.Error())
+				if err != nil {
+					return
+				}
 			}
 		}
 	})

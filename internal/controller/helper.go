@@ -12,19 +12,27 @@ import (
 func (a *App) botHandler(obj events.MessageNewObject) error {
 	b := params.NewMessagesSendBuilder()
 	keyboards := domain.Keyboard{
-		OneTime: true,
+		Inline: true,
 		Buttons: [][]domain.Button{
 			{
 				{
 					Action: domain.Action{
 						Type:    "callback",
-						Payload: `{"command": "all-menu"}`,
+						Payload: fmt.Sprintf(`{"command": "all-menu", "user_id": %d}`, obj.Message.FromID),
 						Label:   "Тегнуть группу",
 					},
 					Color: "primary",
 				},
 			},
 		},
+	}
+
+	md := params.NewMessagesDeleteBuilder()
+	md.PeerID(obj.Message.PeerID)
+	md.MessageIDs([]int{obj.Message.ID})
+	_, err := a.vk.MessagesDelete(md.Params)
+	if err != nil {
+		return err
 	}
 
 	by, _ := json.Marshal(keyboards)
@@ -34,8 +42,7 @@ func (a *App) botHandler(obj events.MessageNewObject) error {
 	b.RandomID(0)
 	b.PeerID(obj.Message.PeerID)
 
-	st, err := a.vk.MessagesSend(b.Params)
-	fmt.Println(st)
+	_, err = a.vk.MessagesSend(b.Params)
 	if err != nil {
 		return err
 	}
