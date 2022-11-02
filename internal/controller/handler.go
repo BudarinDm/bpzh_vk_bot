@@ -17,59 +17,62 @@ func (a *App) handler() {
 		msg := obj.Message.Text
 		splitMsgs := strings.Split(msg, " ")
 
-		if a.accessAdminChecker(obj.Message.FromID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
-			if msg == "/settings" {
-				fmt.Println("/settings")
-				err := a.sendMsgBuilder(&obj, "/settings")
-				if err != nil {
-					return
-				}
-			}
-		}
+		if !a.accessGroupChecker(obj.Message.PeerID) {
 
-		if a.accessAdminChecker(obj.Message.FromID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
-			if splitMsgs[0] == "/group" {
-				err := a.groupRouter(splitMsgs, obj)
-				if err != nil {
-					log.Error().Err(err).Msg("/group")
-					err = a.sendMsgBuilder(&obj, err.Error())
+			if a.accessAdminChecker(obj.Message.FromID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
+				if msg == "/settings" {
+					fmt.Println("/settings")
+					err := a.sendMsgBuilder(&obj, "/settings")
 					if err != nil {
 						return
 					}
 				}
 			}
-		}
 
-		if a.accessAdminChecker(obj.Message.FromID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
-			if splitMsgs[0] == "/dialogs" {
-				err := a.groupRouter(splitMsgs, obj)
-				if err != nil {
-					log.Error().Err(err).Msg("/dialogs")
-					err = a.sendMsgBuilder(&obj, err.Error())
+			if a.accessAdminChecker(obj.Message.FromID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
+				if splitMsgs[0] == "/group" {
+					err := a.groupRouter(splitMsgs, obj)
+					if err != nil {
+						log.Error().Err(err).Msg("/group")
+						err = a.sendMsgBuilder(&obj, err.Error())
+						if err != nil {
+							return
+						}
+					}
+				}
+			}
+
+			if a.accessAdminChecker(obj.Message.FromID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
+				if splitMsgs[0] == "/dialogs" {
+					err := a.groupRouter(splitMsgs, obj)
+					if err != nil {
+						log.Error().Err(err).Msg("/dialogs")
+						err = a.sendMsgBuilder(&obj, err.Error())
+						if err != nil {
+							return
+						}
+					}
+				}
+			}
+
+			if a.accessAdminChecker(obj.Message.FromID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
+				if splitMsgs[0] == "/help" {
+					err := a.sendMsgBuilder(&obj, "/group info для управления группами\n/user info для управления юзерами , спойлер - для админа")
 					if err != nil {
 						return
 					}
 				}
 			}
-		}
 
-		if a.accessAdminChecker(obj.Message.FromID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
-			if splitMsgs[0] == "/help" {
-				err := a.sendMsgBuilder(&obj, "/group info для управления группами\n/user info для управления юзерами , спойлер - для админа")
-				if err != nil {
-					return
-				}
-			}
-		}
-
-		if a.accessAdminChecker(obj.Message.FromID, []string{RoleAdmin}) {
-			if splitMsgs[0] == "/user" {
-				err := a.userRouter(splitMsgs, obj)
-				if err != nil {
-					log.Error().Err(err).Msg("/user")
-					err = a.sendMsgBuilder(&obj, err.Error())
+			if a.accessAdminChecker(obj.Message.FromID, []string{RoleAdmin}) {
+				if splitMsgs[0] == "/user" {
+					err := a.userRouter(splitMsgs, obj)
 					if err != nil {
-						return
+						log.Error().Err(err).Msg("/user")
+						err = a.sendMsgBuilder(&obj, err.Error())
+						if err != nil {
+							return
+						}
 					}
 				}
 			}

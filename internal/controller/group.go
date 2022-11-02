@@ -165,7 +165,7 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 				"Удалить группу-  /group delete [название группы] [айди беседы].\n" +
 				"Добавить в группу-  /group add [id юзера] [название группы] [айди беседы]\n" +
 				"Удалить из группы-  /group kick [id юзера] [название группы] [айди беседы]\n" +
-				"Беседы в которых вы состоите- /dialogs\n" +
+				"Беседы в которых вы состоите- /dialogs info\n" +
 				"Доступные цвета: primary — синяя, secondary — белая, negative — красный, positive — зеленый"
 		err := a.sendMsgBuilder(&obj, infoMsg)
 		if err != nil {
