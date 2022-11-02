@@ -12,7 +12,7 @@ import (
 func (a *App) botHandler(obj events.MessageNewObject) error {
 	b := params.NewMessagesSendBuilder()
 	keyboards := domain.Keyboard{
-		Inline: true,
+		OneTime: true,
 		Buttons: [][]domain.Button{
 			{
 				{
@@ -38,15 +38,6 @@ func (a *App) botHandler(obj events.MessageNewObject) error {
 	if err != nil {
 		return err
 	}
-
-	md := params.NewMessagesDeleteBuilder()
-	md.PeerID(obj.Message.PeerID)
-	md.MessageIDs([]int{obj.Message.ID})
-	_, err = a.vk.MessagesDelete(md.Params)
-	if err != nil {
-		return err
-	}
-
 	return nil
 }
 
@@ -86,7 +77,6 @@ func (a *App) allMenuHandler(obj events.MessageEventObject) error {
 		}
 
 		keyboards := domain.Keyboard{
-			OneTime: true,
 			Buttons: buttons,
 		}
 

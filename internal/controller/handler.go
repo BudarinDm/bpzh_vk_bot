@@ -17,7 +17,7 @@ func (a *App) handler() {
 		msg := obj.Message.Text
 		splitMsgs := strings.Split(msg, " ")
 
-		if a.accessAdminChecker(obj.Message.FromID, obj.Message.PeerID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
+		if a.accessAdminChecker(obj.Message.FromID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
 			if msg == "/settings" {
 				fmt.Println("/settings")
 				err := a.sendMsgBuilder(&obj, "/settings")
@@ -27,7 +27,7 @@ func (a *App) handler() {
 			}
 		}
 
-		if a.accessAdminChecker(obj.Message.FromID, obj.Message.PeerID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
+		if a.accessAdminChecker(obj.Message.FromID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
 			if splitMsgs[0] == "/group" {
 				err := a.groupRouter(splitMsgs, obj)
 				if err != nil {
@@ -40,7 +40,20 @@ func (a *App) handler() {
 			}
 		}
 
-		if a.accessAdminChecker(obj.Message.FromID, obj.Message.PeerID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
+		if a.accessAdminChecker(obj.Message.FromID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
+			if splitMsgs[0] == "/dialogs" {
+				err := a.groupRouter(splitMsgs, obj)
+				if err != nil {
+					log.Error().Err(err).Msg("/dialogs")
+					err = a.sendMsgBuilder(&obj, err.Error())
+					if err != nil {
+						return
+					}
+				}
+			}
+		}
+
+		if a.accessAdminChecker(obj.Message.FromID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
 			if splitMsgs[0] == "/help" {
 				err := a.sendMsgBuilder(&obj, "/group info для управления группами\n/user info для управления юзерами , спойлер - для админа")
 				if err != nil {
@@ -49,7 +62,7 @@ func (a *App) handler() {
 			}
 		}
 
-		if a.accessAdminChecker(obj.Message.FromID, obj.Message.PeerID, []string{RoleAdmin}) {
+		if a.accessAdminChecker(obj.Message.FromID, []string{RoleAdmin}) {
 			if splitMsgs[0] == "/user" {
 				err := a.userRouter(splitMsgs, obj)
 				if err != nil {
@@ -62,20 +75,22 @@ func (a *App) handler() {
 			}
 		}
 
-		if msg == "/bot" {
-			err := a.botHandler(obj)
-			if err != nil {
-				log.Error().Err(err)
-				err = a.sendMsgBuilder(&obj, err.Error())
+		if a.accessGroupChecker(obj.Message.PeerID) {
+			if msg == "/bot" {
+				err := a.botHandler(obj)
 				if err != nil {
-					return
+					log.Error().Err(err)
+					err = a.sendMsgBuilder(&obj, err.Error())
+					if err != nil {
+						return
+					}
 				}
 			}
 		}
 	})
 
 	a.lp.MessageEvent(func(_ context.Context, obj events.MessageEventObject) {
-		log.Printf("%d: %s, %s, %d, %d", obj.UserID, obj.EventID, obj.Payload, obj.PeerID, obj.ConversationMessageID)
+		log.Printf("userid=%d eventid=%s payload=%s peerid=%d conversationmessageid=%d", obj.UserID, obj.EventID, obj.Payload, obj.PeerID, obj.ConversationMessageID)
 
 		var e MessageEventResponse
 		err := json.Unmarshal(obj.Payload, &e)
@@ -87,26 +102,26 @@ func (a *App) handler() {
 			}
 		}
 
-		//obj.EventID
-
-		if e.Command == "all-menu" && e.UserID == obj.UserID {
-			err = a.allMenuHandler(obj)
-			if err != nil {
-				log.Error().Err(err).Msg("all-menu")
-				err = a.sendMsgEventBuilder(&obj, err.Error())
+		if a.accessGroupChecker(obj.PeerID) {
+			if e.Command == "all-menu" {
+				err = a.allMenuHandler(obj)
 				if err != nil {
-					return
+					log.Error().Err(err).Msg("all-menu")
+					err = a.sendMsgEventBuilder(&obj, err.Error())
+					if err != nil {
+						return
+					}
 				}
 			}
-		}
 
-		if e.Command == "all" {
-			err = a.allHandler(obj, e.Arg)
-			if err != nil {
-				log.Error().Err(err).Msg("all")
-				err = a.sendMsgEventBuilder(&obj, err.Error())
+			if e.Command == "all" {
+				err = a.allHandler(obj, e.Arg)
 				if err != nil {
-					return
+					log.Error().Err(err).Msg("all")
+					err = a.sendMsgEventBuilder(&obj, err.Error())
+					if err != nil {
+						return
+					}
 				}
 			}
 		}

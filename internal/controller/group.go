@@ -15,17 +15,22 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 	}
 
 	if splitMsgs[1] == "create" {
-		if len(splitMsgs) < 4 {
+		if len(splitMsgs) < 5 {
 			return errors.New("Для подробной информации по работе с /group\nВведите /group info")
 		}
 		if splitMsgs[3] != ColorBlue && splitMsgs[3] != ColorWhite && splitMsgs[3] != ColorRed && splitMsgs[3] != ColorGreen {
 			return errors.New("Выбран не корректный цвет. Для подробной информации по работе с /group\nВведите /group info")
 		}
 
+		parseInt, err := strconv.ParseInt(splitMsgs[4], 10, 64)
+		if err != nil {
+			return err
+		}
+
 		g := domain.Group{
 			Name:   splitMsgs[2],
 			Color:  splitMsgs[3],
-			ChatId: int64(obj.Message.PeerID),
+			ChatId: parseInt,
 		}
 
 		item, err := a.logic.CreateGroup(context.Background(), g)
@@ -47,7 +52,7 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 		return nil
 	}
 	if splitMsgs[1] == "update" {
-		if len(splitMsgs) < 5 {
+		if len(splitMsgs) < 6 {
 			return errors.New("Для подробной информации по работе с /group\nВведите /group info")
 		}
 
@@ -60,7 +65,13 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 				return errors.New("Выбран не корректный цвет. Для подробной информации по работе с /group\nВведите /group info")
 			}
 		}
-		err := a.logic.UpdateGroup(context.Background(), splitMsgs[3], splitMsgs[2], splitMsgs[4], int64(obj.Message.PeerID))
+
+		parseInt, err := strconv.ParseInt(splitMsgs[5], 10, 64)
+		if err != nil {
+			return err
+		}
+
+		err = a.logic.UpdateGroup(context.Background(), splitMsgs[3], splitMsgs[2], splitMsgs[4], parseInt)
 		if err != nil {
 			return err
 		}
@@ -72,10 +83,14 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 		return nil
 	}
 	if splitMsgs[1] == "delete" {
-		if len(splitMsgs) < 3 {
+		if len(splitMsgs) < 4 {
 			return errors.New("Для подробной информации по работе с /group\nВведите /group info")
 		}
-		err := a.logic.DeleteGroup(context.Background(), splitMsgs[2], int64(obj.Message.PeerID))
+		parseInt, err := strconv.ParseInt(splitMsgs[3], 10, 64)
+		if err != nil {
+			return err
+		}
+		err = a.logic.DeleteGroup(context.Background(), splitMsgs[2], parseInt)
 		if err != nil {
 			return err
 		}
@@ -87,11 +102,14 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 		return nil
 	}
 	if splitMsgs[1] == "add" {
-		if len(splitMsgs) < 4 {
+		if len(splitMsgs) < 5 {
 			return errors.New("Для подробной информации по работе с /group\nВведите /group info")
 		}
-
-		_, err := a.logic.GetGroup(context.Background(), splitMsgs[3], int64(obj.Message.PeerID))
+		parseInt, err := strconv.ParseInt(splitMsgs[4], 10, 64)
+		if err != nil {
+			return err
+		}
+		_, err = a.logic.GetGroup(context.Background(), splitMsgs[3], parseInt)
 		if err != nil {
 			return errors.New(fmt.Sprintf(`Группа "%s" не найдена`, splitMsgs[3]))
 		}
@@ -101,7 +119,7 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 			return err
 		}
 
-		err = a.logic.AddUserToGroup(context.Background(), id, splitMsgs[3], int64(obj.Message.PeerID))
+		err = a.logic.AddUserToGroup(context.Background(), id, splitMsgs[3], parseInt)
 		if err != nil {
 			return err
 		}
@@ -112,11 +130,15 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 		return nil
 	}
 	if splitMsgs[1] == "kick" {
-		if len(splitMsgs) < 4 {
+		if len(splitMsgs) < 5 {
 			return errors.New("Для подробной информации по работе с /group\nВведите /group info")
 		}
+		parseInt, err := strconv.ParseInt(splitMsgs[4], 10, 64)
+		if err != nil {
+			return err
+		}
 
-		_, err := a.logic.GetGroup(context.Background(), splitMsgs[3], int64(obj.Message.PeerID))
+		_, err = a.logic.GetGroup(context.Background(), splitMsgs[3], parseInt)
 		if err != nil {
 			return errors.New(fmt.Sprintf(`Группа "%s" не найдена`, splitMsgs[3]))
 		}
@@ -126,7 +148,7 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 			return err
 		}
 
-		err = a.logic.DeleteUserToGroup(context.Background(), id, splitMsgs[3], int64(obj.Message.PeerID))
+		err = a.logic.DeleteUserToGroup(context.Background(), id, splitMsgs[3], parseInt)
 		if err != nil {
 			return err
 		}
@@ -138,11 +160,12 @@ func (a *App) groupRouter(splitMsgs []string, obj events.MessageNewObject) error
 	}
 	if splitMsgs[1] == "info" {
 		infoMsg :=
-			"Доступные команды для group:\nСоздать группу-  /group create [название группы] [цвет группы из доступных],\n" +
-				"Обновить группу-  /group update [название группы] [color] [новое значение],\n" +
-				"Удалить группу-  /group delete [название группы].\n" +
-				"Добавить в группу-  /group add [id юзера] [название группы]\n" +
-				"Удалить из группы-  /group kick [id юзера] [название группы]\n" +
+			"Доступные команды для group:\nСоздать группу-  /group create [название группы] [цвет группы из доступных] [айди беседы],\n" +
+				"Обновить группу-  /group update [название группы] [color] [новое значение] [айди беседы],\n" +
+				"Удалить группу-  /group delete [название группы] [айди беседы].\n" +
+				"Добавить в группу-  /group add [id юзера] [название группы] [айди беседы]\n" +
+				"Удалить из группы-  /group kick [id юзера] [название группы] [айди беседы]\n" +
+				"Беседы в которых вы состоите- /dialogs\n" +
 				"Доступные цвета: primary — синяя, secondary — белая, negative — красный, positive — зеленый"
 		err := a.sendMsgBuilder(&obj, infoMsg)
 		if err != nil {

@@ -73,9 +73,7 @@ func (r *Repo) AddRoleUser(ctx context.Context, userId, chatId int64, role strin
 		}
 
 		_, err = r.FS.Collection("users").Doc(doc.Ref.ID).Set(ctx, map[string]interface{}{
-			"roles": map[string]interface{}{
-				role: firestore.ArrayUnion(chatId),
-			},
+			"roles": firestore.ArrayUnion(role),
 		}, firestore.MergeAll)
 		if err != nil {
 			return err
@@ -104,9 +102,7 @@ func (r *Repo) DeleteRoleUser(ctx context.Context, userId, chatId int64, role st
 		}
 
 		_, err = r.FS.Collection("users").Doc(doc.Ref.ID).Set(ctx, map[string]interface{}{
-			"roles": map[string]interface{}{
-				role: firestore.ArrayRemove(chatId),
-			},
+			"roles": firestore.ArrayRemove(role),
 		}, firestore.MergeAll)
 		if err != nil {
 			return err

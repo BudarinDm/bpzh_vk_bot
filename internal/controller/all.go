@@ -23,10 +23,10 @@ func (a *App) allHandler(obj events.MessageEventObject, group string) error {
 	e.EventID(obj.EventID)
 	e.PeerID(obj.PeerID)
 	e.UserID(obj.UserID)
-	e.EventData(fmt.Sprintf(`{
-    "type": "show_snackbar",
-    "text": "Вы тегнули %s"
-  }`, group))
+	//e.EventData(fmt.Sprintf(`{
+	//  "type": "show_snackbar",
+	//  "text": "Вы тегнули %s"
+	//}`, group))
 
 	_, err = a.vk.MessagesSend(b.Params)
 	if err != nil {
