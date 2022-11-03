@@ -77,6 +77,7 @@ func (a *App) allMenuHandler(obj events.MessageEventObject) error {
 		}
 
 		keyboards := domain.Keyboard{
+			OneTime: true,
 			Buttons: buttons,
 		}
 

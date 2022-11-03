@@ -18,7 +18,6 @@ func (a *App) handler() {
 		splitMsgs := strings.Split(msg, " ")
 
 		if !a.accessGroupChecker(obj.Message.PeerID) {
-
 			if a.accessAdminChecker(obj.Message.FromID, []string{RoleAdmin, RoleModerator, RoleNickolauyk}) {
 				if msg == "/settings" {
 					fmt.Println("/settings")
