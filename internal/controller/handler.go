@@ -81,7 +81,7 @@ func (a *App) handler() {
 			if msg == "/Дубина" {
 				b := params.NewMessagesSendBuilder()
 
-				b.Message(msg)
+				b.Message("@anthony_club (Антон) , вас вызывают...")
 				b.RandomID(0)
 				b.PeerID(obj.Message.PeerID)
 				b.Attachment("photo-216838391_457239033")
