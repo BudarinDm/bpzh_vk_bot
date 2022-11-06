@@ -78,6 +78,21 @@ func (a *App) handler() {
 		}
 
 		if a.accessGroupChecker(obj.Message.PeerID) {
+			if msg == "/Дубина" {
+				b := params.NewMessagesSendBuilder()
+
+				b.Message(msg)
+				b.RandomID(0)
+				b.PeerID(obj.Message.PeerID)
+				b.Attachment("photo-216838391_457239033")
+
+				_, err := a.vk.MessagesSend(b.Params)
+				if err != nil {
+				}
+			}
+		}
+
+		if a.accessGroupChecker(obj.Message.PeerID) {
 			if msg == "/bot" {
 				err := a.botHandler(obj)
 				if err != nil {
