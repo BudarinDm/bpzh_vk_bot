@@ -8,6 +8,7 @@ import (
 type Config struct {
 	App AppConfig
 	DB  DBConfig
+	Api ApiConfig
 }
 
 type AppConfig struct {
@@ -19,6 +20,11 @@ type AppConfig struct {
 type DBConfig struct {
 	DBString string
 	FSConf   string
+}
+
+type ApiConfig struct {
+	Url   string
+	Token string
 }
 
 func ReadConfig() (*Config, error) {
@@ -38,6 +44,16 @@ func ReadConfig() (*Config, error) {
 		config.App.LogLevel = "debug"
 	}
 
+	config.Api.Url = os.Getenv("API_URL")
+	if config.Api.Url == "" {
+		return nil, errors.New("Not specified API_URL")
+	}
+
+	config.Api.Token = os.Getenv("API_TOKEN")
+	if config.Api.Token == "" {
+		return nil, errors.New("Not specified API_TOKEN")
+	}
+
 	config.App.BotToken = os.Getenv("BOT_TOKEN")
 	if config.App.BotToken == "" {
 		return nil, errors.New("Not specified BOT_TOKEN")
@@ -47,13 +63,6 @@ func ReadConfig() (*Config, error) {
 	if config.DB.FSConf == "" {
 		return nil, errors.New("Not specified FS_CONF")
 	}
-
-	//db parse
-
-	//config.DB.DBString = os.Getenv("DBSTRING")
-	//if config.DB.DBString == "" {
-	//	return nil, errors.New("Not specified DBSTRING")
-	//}
 
 	return &config, err
 

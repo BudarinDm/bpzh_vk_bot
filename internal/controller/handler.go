@@ -177,6 +177,7 @@ func (a *App) sendMsgBuilder(obj *events.MessageNewObject, msg string) error {
 	b := params.NewMessagesSendBuilder()
 
 	b.Message(msg)
+	//
 	b.RandomID(0)
 	b.PeerID(obj.Message.PeerID)
 
